@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page import="java.sql.*, java.util.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +6,6 @@
     <title>Symptom Checker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <!-- Inline CSS for Styling the Symptom Checker Page -->
     <style>
         /* General reset */
         *, *::before, *::after {
@@ -74,15 +73,116 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        .results {
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .result-item {
+            font-size: 1.1rem;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .no-results {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .loading {
+            color: #f39c12;
+            font-style: italic;
+        }
     </style>
 </head>
 
 <body>
     <h1>Symptom Checker</h1>
-    <form action="checkSymptoms" method="post">
-        <label for="symptoms">Enter your symptoms:</label><br/>
-        <textarea id="symptoms" name="symptoms" rows="4" cols="50"></textarea><br/>
-        <input type="submit" value="Check Symptoms">
-    </form>
+    	<form action="/symptomChecker" method="post">
+    		<label for="symptoms">Enter your symptoms (comma-separated):</label><br/>
+    		<textarea id="symptoms" name="symptoms" rows="4" cols="50"></textarea><br/>
+    		<input type="submit" value="Check Symptoms">
+		</form>
+
+
+    <%
+        // Process form submission
+        String symptoms = request.getParameter("symptoms");
+
+        if (symptoms != null && !symptoms.isEmpty()) {
+            // Database connection details
+            String url = "jdbc:mysql://localhost:3306/medical";
+            String user = "root";
+            String password = "manas";
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+
+            try {
+                // Load MySQL JDBC Driver
+                Class.forName("com.mysql.cj.jdbc.Driver");
+
+                // Establish a connection to the database
+                conn = DriverManager.getConnection(url, user, password);
+
+                // Split the input symptoms into an array and remove extra spaces
+                String[] symptomList = symptoms.split(",");
+                
+                // Build SQL query
+                StringBuilder query = new StringBuilder("SELECT DISTINCT mc.condition_name FROM medical_conditions mc ");
+                query.append("JOIN condition_symptoms cs ON mc.id = cs.condition_id ");
+                query.append("JOIN symptoms s ON cs.symptom_id = s.id WHERE s.symptom_name IN (");
+
+                // Add placeholders for the symptoms
+                for (int i = 0; i < symptomList.length; i++) {
+                    query.append("?");
+
+                    if (i < symptomList.length - 1) {
+                        query.append(",");
+                    }
+                }
+                query.append(")");
+
+                // Prepare statement and set parameters
+                pstmt = conn.prepareStatement(query.toString());
+                for (int i = 0; i < symptomList.length; i++) {
+                    pstmt.setString(i + 1, symptomList[i].trim());
+                }
+
+                // Execute query
+                rs = pstmt.executeQuery();
+
+                // Display results
+                if (rs.next()) {
+                    out.println("<div class='results'>");
+                    out.println("<h3>Possible Medical Conditions:</h3>");
+                    do {
+                        out.println("<div class='result-item'>" + rs.getString("condition_name") + "</div>");
+                    } while (rs.next());
+                    out.println("</div>");
+                } else {
+                    out.println("<div class='results no-results'>No matching conditions found for the provided symptoms.</div>");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                out.println("<div class='results'>An error occurred while checking the symptoms.</div>");
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                    if (pstmt != null) pstmt.close();
+                    if (conn != null) conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    %>
 </body>
 </html>
