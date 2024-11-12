@@ -16,28 +16,50 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #f3f9ff;
-            color: #333;
+            background-image: url('images/home.jpeg'); /* Background image for the body */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
         }
 
+        /* Background Blur Effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Darkened background for better readability */
+            filter: blur(6px);
+            z-index: -1;
+        }
+
+        /* Title Styling */
         h1 {
             font-size: 2.2rem;
             color: #007bff;
             margin-bottom: 20px;
             text-align: center;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for the title */
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         form {
             width: 100%;
             max-width: 500px;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -78,7 +100,7 @@
         /* Results Section */
         .results {
             margin-top: 20px;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
