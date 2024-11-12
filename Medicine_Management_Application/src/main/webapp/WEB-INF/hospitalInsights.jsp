@@ -1,3 +1,4 @@
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,6 +38,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         /* Hospital Name Styling */
@@ -56,6 +58,8 @@
         /* Hover effect for list items */
         li:hover {
             background-color: #f1f7ff;
+            transform: scale(1.02); /* Slight zoom-in effect */
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
         }
     </style>
 </head>
@@ -63,27 +67,54 @@
 
     <h1>Hospital Insights</h1>
     <ul>
-        <li>
-            <span class="hospital-name">City Hospital</span>
-            <div class="stats">
-                ENT Success Rate: 95%<br/>
-                Brain Tumor Success Rate: 90%
-            </div>
-        </li>
-        <li>
-            <span class="hospital-name">Downtown Medical Center</span>
-            <div class="stats">
-                ENT Success Rate: 92%<br/>
-                Brain Tumor Success Rate: 88%
-            </div>
-        </li>
-        <li>
-            <span class="hospital-name">Green Valley Hospital</span>
-            <div class="stats">
-                ENT Success Rate: 94%<br/>
-                Brain Tumor Success Rate: 89%
-            </div>
-        </li>
+        <%
+            // Database connection parameters
+            String url = "jdbc:mysql://localhost:3306/medical";
+            String user = "root";
+            String password = "manas";
+
+            Connection conn = null;
+            Statement stmt = null;
+            ResultSet rs = null;
+
+            try {
+                // Load the MySQL JDBC driver
+                Class.forName("com.mysql.cj.jdbc.Driver");
+
+                // Establish a connection
+                conn = DriverManager.getConnection(url, user, password);
+
+                // Create a statement to execute SQL
+                stmt = conn.createStatement();
+
+                // Query to retrieve data from hospital_insights table
+                String sql = "SELECT hospital_name, success_rate, failure_rate FROM hospital_insights";
+                rs = stmt.executeQuery(sql);
+
+                // Iterate through the result set and display each row
+                while (rs.next()) {
+                    String hospitalName = rs.getString("hospital_name");
+                    String successRate = rs.getString("success_rate");
+                    String failureRate = rs.getString("failure_rate");
+        %>
+                    <li>
+                        <span class="hospital-name"><%= hospitalName %></span>
+                        <div class="stats">
+                            Success Rate: <%= successRate %>%<br/>
+                            Failure Rate: <%= failureRate %>%
+                        </div>
+                    </li>
+        <%
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                // Close the resources
+                if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
+                if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+                if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
+            }
+        %>
     </ul>
 
 </body>
