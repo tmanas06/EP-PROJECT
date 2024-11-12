@@ -31,6 +31,7 @@
             color: #007bff;
             margin-bottom: 20px;
             text-align: center;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         form {
@@ -67,13 +68,14 @@
             font-size: 1rem;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
 
+        /* Results Section */
         .results {
             margin-top: 20px;
             background-color: #ffffff;
@@ -100,17 +102,41 @@
             color: #f39c12;
             font-style: italic;
         }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+
+            form {
+                width: 90%;
+            }
+
+            .results {
+                width: 90%;
+            }
+
+            textarea {
+                font-size: 1rem;
+                padding: 8px;
+            }
+
+            input[type="submit"] {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 
 <body>
     <h1>Symptom Checker</h1>
-    	<form action="/symptomChecker" method="post">
-    		<label for="symptoms">Enter your symptoms (comma-separated):</label><br/>
-    		<textarea id="symptoms" name="symptoms" rows="4" cols="50"></textarea><br/>
-    		<input type="submit" value="Check Symptoms">
-		</form>
-
+    <form action="/symptomChecker" method="post">
+        <label for="symptoms">Enter your symptoms (comma-separated):</label><br/>
+        <textarea id="symptoms" name="symptoms" rows="4" cols="50"></textarea><br/>
+        <input type="submit" value="Check Symptoms">
+    </form>
 
     <%
         // Process form submission

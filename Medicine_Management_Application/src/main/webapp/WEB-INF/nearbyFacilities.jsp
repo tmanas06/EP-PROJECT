@@ -3,17 +3,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nearby Healthcare Facilities</title>
     <style>
         /* Basic Styling */
         body {
             font-family: Arial, sans-serif;
-            background: url('https://images.unsplash.com/photo-1585435541088-e352fc432d67') no-repeat center center fixed;
+            background-image: url('images/home.jpeg'); /* Optional: Set background image */
             background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             text-align: center;
             padding: 20px;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
             position: relative;
-            color: #333;
         }
 
         /* Background Blur Effect */
@@ -24,24 +33,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5); /* Slight darkening for text visibility */
             filter: blur(6px);
             z-index: -1;
         }
 
+        /* Title Styling */
         h1 {
             color: #ffffff;
-            font-size: 2em;
+            font-size: 2.5em;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for the title */
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         /* List Styling */
         ul {
             list-style-type: none;
             padding: 0;
-            width: 60%;
-            margin: 0 auto;
+            width: 80%;
+            max-width: 800px;
+            margin-top: 30px;
             z-index: 1;
             position: relative;
         }
@@ -53,25 +68,33 @@
             border-radius: 10px;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
             font-size: 1.1em;
-            text-align: left;
             color: #333;
             display: flex;
             flex-direction: column;
-            position: relative;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            align-items: flex-start;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         li:hover {
             transform: scale(1.02);
-            background-color: #e8f4ff;
+            background-color: #f1f7ff;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
         }
 
-        /* Facility Details */
+        /* Facility Name Styling */
+        li span {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        /* Distance Styling */
         .distance {
             font-weight: bold;
-            color: #007bff;
             font-size: 1.1em;
             margin-bottom: 10px;
+            color: #007bff;
         }
 
         /* Button Styling */
@@ -115,6 +138,22 @@
                 transform: translateY(0);
             }
         }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+                padding: 10px 20px;
+            }
+
+            ul {
+                width: 90%;
+            }
+
+            li {
+                font-size: 1em;
+            }
+        }
     </style>
 
     <script>
@@ -132,6 +171,7 @@
 <body>
 
     <h1>Nearby Healthcare Facilities</h1>
+
     <ul>
         <%
             // Database connection details
