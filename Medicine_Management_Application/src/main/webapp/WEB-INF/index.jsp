@@ -62,6 +62,34 @@
 		#darkModeToggle:hover {
 		    background-color: #219653; /* Slightly darker green on hover */
 		}
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Vertically center items */
+        position: relative; /* Allows positioning the button on the right */
+    }
+    
+    .logo {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    #darkModeToggle {
+        background-color: var(--secondary-color);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        position: absolute; /* Positioning the button absolutely */
+        right: 20px; /* Aligning it to the right */
+    }
+    
+    #darkModeToggle:hover {
+        background-color: #219653; /* Slightly darker green on hover */
+    }
 
         nav {
             background-color: #2980b9;
