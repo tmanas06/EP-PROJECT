@@ -1,9 +1,11 @@
 package com.manas;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class PageController {
@@ -12,7 +14,15 @@ public class PageController {
     public String symptomChecker() {
         return "symptomChecker"; // Corresponds to /WEB-INF/symptomChecker.jsp
     }
-
+	@PostMapping("/connect-wallet")
+	@ResponseBody
+	public ResponseEntity<String> connectWallet(@RequestParam String providerUrl) {
+	    // Here you would typically validate the providerUrl and perform any necessary
+	    // server-side operations related to wallet connection
+	    
+	    // For now, we'll just return a success message
+	    return ResponseEntity.ok("Wallet connected successfully");
+	}
     @PostMapping("/symptomChecker")
     public String processSymptoms(@RequestParam("symptoms") String symptoms) {
         // Here, you will process the symptoms
