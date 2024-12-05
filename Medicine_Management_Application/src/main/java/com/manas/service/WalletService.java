@@ -18,7 +18,7 @@ public class WalletService {
     public String getWalletAddress() {
         try {
             EthAccounts accounts = web3.ethAccounts().send();
-            return accounts.getAccounts().get(0);
+            return accounts.getAccounts().getFirst();
         } catch (IOException e) {
             throw new RuntimeException("Failed to get wallet address", e);
         }
