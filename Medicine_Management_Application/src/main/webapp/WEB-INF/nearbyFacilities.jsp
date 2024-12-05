@@ -3,31 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nearby Facilities</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Nearby Hospitals</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         #map {
-            height: 500px;
+            height: 80vh;
             width: 100%;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        #search-container {
-            margin: 10px;
-            text-align: center;
+            margin-top: 20px;
         }
         button {
             padding: 10px 20px;
-            font-size: 16px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
         }
         button:hover {
             background-color: #45a049;
@@ -35,80 +33,62 @@
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Nearby Facilities</h1>
-    <div id="search-container">
-        <button onclick="locateUser()">Find Nearby Hospitals</button>
-    </div>
+    <h1>Find Nearby Hospitals</h1>
+    <button id="findHospitals">Find Nearby Hospitals</button>
     <div id="map"></div>
 
     <script>
         // Initialize the map
-        const map = L.map('map').setView([37.7749, -122.4194], 12); // Default: San Francisco
+        const map = L.map('map').setView([0, 0], 13); // Default location until user location is fetched
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Function to locate the user and find hospitals
-        async function locateUser() {
+        // Get the user's current location
+        document.getElementById('findHospitals').addEventListener('click', () => {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async position => {
-                        const userLat = position.coords.latitude;
-                        const userLon = position.coords.longitude;
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
 
-                        // Center the map on the user's location
-                        map.setView([userLat, userLon], 14);
+                    // Center the map to the user's location
+                    map.setView([lat, lon], 13);
+                    L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
 
-                        // Add a marker for the user's location
-                        L.marker([userLat, userLon]).addTo(map)
-                            .bindPopup("You are here")
-                            .openPopup();
-
-                        // Fetch nearby hospitals using Overpass API
-                        const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="hospital"](around:5000,${userLat},${userLon});out;`;
-
-                        try {
-                            const response = await fetch(overpassUrl);
-                            const data = await response.json();
-
-                            // Add markers for hospitals
-                            data.elements.forEach(hospital => {
-                                if (hospital.lat && hospital.lon) {
-                                    const name = hospital.tags && hospital.tags.name ? hospital.tags.name : "Unnamed Hospital";
-                                    const address = `${hospital.tags['addr:housenumber'] || ''} ${hospital.tags['addr:street'] || ''}, ${hospital.tags['addr:city'] || ''}, ${hospital.tags['addr:postcode'] || ''}`;
-                                    const phone = hospital.tags.phone || 'No phone number available';
-                                    const website = hospital.tags.website || 'No website available';
-                                    const speciality = hospital.tags["healthcare:speciality"] || 'General';
-
-                                    // Create a popup with more information
-                                    const popupContent = `
-                                        <strong>${name}</strong><br>
-                                        <strong>Speciality:</strong> ${speciality}<br>
-                                        <strong>Address:</strong> ${address}<br>
-                                        <strong>Phone:</strong> ${phone}<br>
-                                        <a href="${website}" target="_blank">Visit Website</a>
-                                    `;
-
-                                    // Add hospital marker to the map with a popup
-                                    L.marker([hospital.lat, hospital.lon]).addTo(map)
-                                        .bindPopup(popupContent);
-                                }
-                            });
-                        } catch (error) {
-                            alert("Error fetching nearby hospitals: " + error.message);
+                    // Fetch nearby hospitals using your Node.js server
+                    try {
+                        const response = await $.get('http://localhost:3000/nearby-hospitals', { lat, lon });
+                        const hospitals = response.elements || [];
+                        
+                        if (hospitals.length === 0) {
+                            alert("No hospitals found nearby.");
+                            return;
                         }
-                    },
-                    error => {
-                        alert("Geolocation error: " + error.message);
+
+                        // Add hospital markers to the map
+                        hospitals.forEach(hospital => {
+                            const hospitalLat = hospital.lat;
+                            const hospitalLon = hospital.lon;
+                            const name = hospital.tags && hospital.tags.name ? hospital.tags.name : "Unknown Hospital";
+
+                            L.marker([hospitalLat, hospitalLon])
+                                .addTo(map)
+                                .bindPopup(`<b>${name}</b>`);
+                        });
+                    } catch (error) {
+                        console.error("Error fetching nearby hospitals:", error);
+                        alert("Unable to fetch nearby hospitals. Please try again later.");
                     }
-                );
+                }, (error) => {
+                    console.error("Geolocation error:", error);
+                    alert("Unable to access location. Please enable location services.");
+                });
             } else {
-                alert("Geolocation is not supported by this browser.");
+                alert("Geolocation is not supported by your browser.");
             }
-        }
+        });
     </script>
 </body>
 </html>
