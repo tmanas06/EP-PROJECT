@@ -3,7 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // Enable CORS to allow frontend to make requests to the backend
 app.use(cors());

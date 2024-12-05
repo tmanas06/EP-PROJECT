@@ -246,10 +246,11 @@
 	   </header>
 	   <nav>
 	         <ul>
+	             <li><a href="index">Home</a></li>
 	             <li><a href="symptomChecker">Symptom Checker</a></li>
 	             <li><a href="nearbyFacilities">Nearby Healthcare Facilities</a></li>
 	             <li><a href="medicationPrices">Medication Price Comparison</a></li>
-	             <li><a href="hospitalInsights">Hospital Insights</a></li>
+	             <li><a href="profile">profile</a></li>
 	                 <li><button id="connectWalletBtn">Connect Wallet</button></li>
 
 	         </ul>

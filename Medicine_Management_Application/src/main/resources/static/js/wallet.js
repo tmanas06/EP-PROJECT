@@ -1,31 +1,38 @@
-document.getElementById('connectWalletBtn').addEventListener('click', async () => {
-    if (typeof window.ethereum !== 'undefined') {
-        try {
-            // Request account access
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            
-            // Get the selected address
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-            const address = accounts[0];
-            
-            // Send the address to your server
-            const response = await fetch('/connect-wallet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `providerUrl=${window.ethereum.networkVersion}`
-            });
-            
-            if (response.ok) {
-                document.getElementById('walletAddress').textContent = `Connected: ${address}`;
-            } else {
-                console.error('Failed to connect wallet on server');
+document.addEventListener('DOMContentLoaded', function() {
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const profileContent = document.getElementById('profileContent');
+
+    connectWalletBtn.addEventListener('click', async () => {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                const address = accounts[0];
+
+                const response = await fetch('/connect-wallet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `address=${address}`
+                });
+
+                if (response.ok) {
+                    profileContent.innerHTML = `
+                        <div style="color: var(--text-blue)">Wallet Connected</div>
+                        <div style="margin-top: 1rem;">
+                            Address: ${address}
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Failed to connect wallet on server');
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet');
             }
-        } catch (error) {
-            console.error('Failed to connect wallet', error);
+        } else {
+            alert('MetaMask not detected');
         }
-    } else {
-        console.error('MetaMask not detected');
-    }
+    });
 });

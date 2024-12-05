@@ -7,23 +7,23 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class WalletController {
-
+    
     @Autowired
     private WalletService walletService;
 
-    @GetMapping("/wallet")
-    public String walletPage() {
-        return "wallet";
+    @GetMapping("/profile")
+    public String profilePage() {
+        return "profile";
     }
 
     @PostMapping("/connect-wallet")
     @ResponseBody
-    public String connectWallet(@RequestParam String providerUrl) {
+    public String connectWallet(@RequestParam String address) {
         try {
-            walletService.connectWallet(providerUrl);
-            return "Wallet connected successfully";
+            walletService.connectWallet(address);
+            return "success";
         } catch (Exception e) {
-            return "Failed to connect wallet: " + e.getMessage();
+            return "error: " + e.getMessage();
         }
     }
 

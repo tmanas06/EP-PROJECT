@@ -1,48 +1,38 @@
 package com.manas;
 
-<<<<<<< HEAD
-import org.springframework.http.ResponseEntity;
-=======
 import java.util.List;
 
 import org.json.JSONObject;
->>>>>>> ab8cdcd56d673d7266949ff79f21cc4956d34a29
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-<<<<<<< HEAD
-=======
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
->>>>>>> ab8cdcd56d673d7266949ff79f21cc4956d34a29
 
 @Controller
 public class PageController {
+
+    @GetMapping("/index")
+    public String index() {
+        return "index"; // This should match the name of your JSP file without the .jsp extension
+    }
 
     @GetMapping("/symptomChecker")
     public String symptomChecker() {
         return "symptomChecker"; // Returns the JSP for the form
     }
-	@PostMapping("/connect-wallet")
-	@ResponseBody
-	public ResponseEntity<String> connectWallet(@RequestParam String providerUrl) {
-	    // Here you would typically validate the providerUrl and perform any necessary
-	    // server-side operations related to wallet connection
-	    
-	    // For now, we'll just return a success message
-	    return ResponseEntity.ok("Wallet connected successfully");
-	}
+
     @PostMapping("/symptomChecker")
     public String processSymptoms(@RequestBody String symptoms, Model model) {
         try {
             // API endpoint (replace with your actual endpoint)
-            String apiUrl = "http://localhost:3000/symptom-checker";
+            String apiUrl = "http://localhost:3001/symptom-checker";
 
             // Prepare the request payload
             String payload = "{\"symptoms\": \"" + symptoms + "\"}";
@@ -83,8 +73,8 @@ public class PageController {
         return "medicationPrices"; // Corresponds to /WEB-INF/medicationPrices.jsp
     }
 
-    @GetMapping("/hospitalInsights")
-    public String hospitalInsights() {
-        return "hospitalInsights"; // Corresponds to /WEB-INF/hospitalInsights.jsp
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile"; // Corresponds to /WEB-INF/hospitalInsights.jsp
     }
 }

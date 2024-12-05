@@ -1,0 +1,212 @@
+<%@ page import="com.manas.service.WalletService" %>
+<%@ page import="org.springframework.context.ApplicationContext" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #2193b0, #6dd5ed);
+            --nav-background: rgba(0, 0, 0, 0.2);
+            --card-background: rgba(40, 40, 40, 0.9);
+            --text-light: #ffffff;
+            --text-blue: #2193b0;
+            --text-red: #ff4444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            color: var(--text-light);
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--text-light);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .nav-menu {
+            background: var(--nav-background);
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-item {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: var(--text-red);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 2rem 0;
+        }
+
+        .profile-card {
+            background: var(--card-background);
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .profile-name {
+            color: var(--text-blue);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-details {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        #connectWalletBtn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #darkModeToggle {
+            background: transparent;
+            border: 1px solid var(--text-light);
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                align-items: center;
+            }
+            .profile-card {
+                width: 90%;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HealthMate</div>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+    </div>
+
+    <div class="nav-container">
+        <div class="nav-menu">
+            <a href="home" class="nav-item">Home</a>
+            <a href="symptomChecker" class="nav-item">Symptom Checker</a>
+            <a href="nearbyFacilities" class="nav-item">Nearby Healthcare Facilities</a>
+            <a href="medicationPrices" class="nav-item">Medication Price Comparison</a>
+            <a href="profile" class="nav-item">Profile</a>
+            <button id="connectWalletBtn">Connect Wallet</button>
+        </div>
+    </div>
+
+    <h1>Profile</h1>
+
+    <%
+        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(application);
+        WalletService walletService = context.getBean(WalletService.class);
+        String walletAddress = walletService.getWalletAddress();
+
+        if (walletAddress != null && !walletAddress.isEmpty()) {
+            String name = "John Doe";
+            String email = "john.doe@example.com";
+            String phone = "123-456-7890";
+    %>
+        <div class="profile-card">
+            <div class="profile-name"><%= name %></div>
+            <div class="profile-details">
+                Email: <%= email %><br/>
+                Phone: <%= phone %><br/>
+                Wallet Address: <%= walletAddress %>
+            </div>
+        </div>
+    <%
+        } else {
+    %>
+        <div class="profile-card">
+            <div class="profile-name">No wallet connected</div>
+            <div class="profile-details">
+                Please connect your wallet to view your profile.
+            </div>
+        </div>
+    <%
+        }
+    %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const connectWalletBtn = document.getElementById('connectWalletBtn');
+            
+            connectWalletBtn.addEventListener('click', async () => {
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                        const address = accounts[0];
+
+                        const response = await fetch('/connect-wallet', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `providerUrl=${window.ethereum.networkVersion}`
+                        });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Failed to connect wallet on server');
+                        }
+                    } catch (error) {
+                        console.error('Failed to connect wallet:', error);
+                        alert('Failed to connect wallet');
+                    }
+                } else {
+                    alert('MetaMask not detected');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

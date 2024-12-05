@@ -1,0 +1,82 @@
+package com.manas;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.json.JSONObject;
+
+@Controller
+@RequestMapping("/page")
+public class PageController {
+
+    @PostMapping("/connect-wallet")
+    @ResponseBody
+    public ResponseEntity<String> connectWallet(@RequestParam String providerUrl) {
+        // Typically validate the providerUrl and perform wallet connection operations here
+        return ResponseEntity.ok("Wallet connected successfully");
+    }
+
+    @GetMapping("/symptomChecker")
+    public String symptomChecker() {
+        return "symptomChecker"; // Returns the JSP for the form
+    }
+
+    @PostMapping("/symptomChecker")
+    public String processSymptoms(@RequestBody SymptomRequest symptomRequest, Model model) {
+        try {
+            String symptoms = symptomRequest.getSymptoms();
+
+            // API endpoint (replace with your actual endpoint)
+            String apiUrl = "http://localhost:3000/symptom-checker";
+
+            // Prepare the request payload
+            String payload = "{\"symptoms\": \"" + symptoms + "\"}";
+
+            // Set headers for Content-Type as application/json
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // Create the HttpEntity with payload and headers
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+
+            // Create RestTemplate and send the request
+            RestTemplate restTemplate = new RestTemplate();
+            String apiResponse = restTemplate.postForObject(apiUrl, entity, String.class);
+
+            // Parse the JSON response
+            JSONObject jsonResponse = new JSONObject(apiResponse);
+            String content = jsonResponse.getJSONArray("choices")
+                                         .getJSONObject(0)
+                                         .getJSONObject("message")
+                                         .getString("content");
+            String formattedContent = content.replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>");
+
+            // Add the parsed content to the model to display on the JSP
+            model.addAttribute("responseMessage", formattedContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "An error occurred while processing symptoms. Please try again later.");
+        }
+        return "symptomChecker"; // Return the same page with results
+    }
+
+    @GetMapping("/nearbyFacilities")
+    public String showNearbyFacilitiesPage() {
+        return "nearbyFacilities"; // JSP page without `.jsp` extension
+    }
+
+    @GetMapping("/medicationPrices")
+    public String medicationPrices() {
+        return "medicationPrices"; // Corresponds to /WEB-INF/medicationPrices.jsp
+    }
+
+    @GetMapping("/hospitalInsights")
+    public String hospitalInsights() {
+        return "hospitalInsights"; // Corresponds to /WEB-INF/hospitalInsights.jsp
+    }
+}

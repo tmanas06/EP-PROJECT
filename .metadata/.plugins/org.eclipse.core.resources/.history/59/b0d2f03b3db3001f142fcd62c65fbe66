@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        /* Keep existing styles */
+        /* Add styles for forms and buttons */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HealthMate</div>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+    </div>
+
+    <div class="nav-container">
+        <!-- Keep existing navigation menu -->
+    </div>
+
+    <h1>Profile</h1>
+
+    <div id="profileContent">
+        <!-- Profile content will be dynamically inserted here -->
+    </div>
+
+    <div id="signupForm" style="display: none;">
+        <h2>Sign Up</h2>
+        <form id="userSignupForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="tel" id="phone" placeholder="Phone" required>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script>
+        let userWallet;
+        const contractAddress = "0x2E9d30761DB97706C536A112B9466433032b28e3";
+        const contractABI = [
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "string",
+        				"name": "_name",
+        				"type": "string"
+        			},
+        			{
+        				"internalType": "uint256",
+        				"name": "_price",
+        				"type": "uint256"
+        			},
+        			{
+        				"internalType": "bool",
+        				"name": "_deliveryAvailable",
+        				"type": "bool"
+        			}
+        		],
+        		"name": "addPharmacy",
+        		"outputs": [],
+        		"stateMutability": "nonpayable",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [],
+        		"stateMutability": "nonpayable",
+        		"type": "constructor"
+        	},
+        	{
+        		"anonymous": false,
+        		"inputs": [
+        			{
+        				"indexed": false,
+        				"internalType": "string",
+        				"name": "name",
+        				"type": "string"
+        			},
+        			{
+        				"indexed": false,
+        				"internalType": "uint256",
+        				"name": "price",
+        				"type": "uint256"
+        			},
+        			{
+        				"indexed": false,
+        				"internalType": "bool",
+        				"name": "deliveryAvailable",
+        				"type": "bool"
+        			}
+        		],
+        		"name": "PharmacyAdded",
+        		"type": "event"
+        	},
+        	{
+        		"anonymous": false,
+        		"inputs": [
+        			{
+        				"indexed": false,
+        				"internalType": "string",
+        				"name": "name",
+        				"type": "string"
+        			},
+        			{
+        				"indexed": false,
+        				"internalType": "uint256",
+        				"name": "price",
+        				"type": "uint256"
+        			},
+        			{
+        				"indexed": false,
+        				"internalType": "bool",
+        				"name": "deliveryAvailable",
+        				"type": "bool"
+        			}
+        		],
+        		"name": "PharmacyUpdated",
+        		"type": "event"
+        	},
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "string",
+        				"name": "_name",
+        				"type": "string"
+        			},
+        			{
+        				"internalType": "uint256",
+        				"name": "_price",
+        				"type": "uint256"
+        			},
+        			{
+        				"internalType": "bool",
+        				"name": "_deliveryAvailable",
+        				"type": "bool"
+        			}
+        		],
+        		"name": "updatePharmacy",
+        		"outputs": [],
+        		"stateMutability": "nonpayable",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "address",
+        				"name": "",
+        				"type": "address"
+        			}
+        		],
+        		"name": "admins",
+        		"outputs": [
+        			{
+        				"internalType": "bool",
+        				"name": "",
+        				"type": "bool"
+        			}
+        		],
+        		"stateMutability": "view",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [],
+        		"name": "getAllPharmacies",
+        		"outputs": [
+        			{
+        				"internalType": "string[]",
+        				"name": "names",
+        				"type": "string[]"
+        			},
+        			{
+        				"internalType": "uint256[]",
+        				"name": "prices",
+        				"type": "uint256[]"
+        			},
+        			{
+        				"internalType": "bool[]",
+        				"name": "deliveryOptions",
+        				"type": "bool[]"
+        			}
+        		],
+        		"stateMutability": "view",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "string",
+        				"name": "_name",
+        				"type": "string"
+        			}
+        		],
+        		"name": "getPharmacy",
+        		"outputs": [
+        			{
+        				"internalType": "string",
+        				"name": "name",
+        				"type": "string"
+        			},
+        			{
+        				"internalType": "uint256",
+        				"name": "price",
+        				"type": "uint256"
+        			},
+        			{
+        				"internalType": "bool",
+        				"name": "deliveryAvailable",
+        				"type": "bool"
+        			}
+        		],
+        		"stateMutability": "view",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "string",
+        				"name": "",
+        				"type": "string"
+        			}
+        		],
+        		"name": "pharmacies",
+        		"outputs": [
+        			{
+        				"internalType": "string",
+        				"name": "name",
+        				"type": "string"
+        			},
+        			{
+        				"internalType": "uint256",
+        				"name": "price",
+        				"type": "uint256"
+        			},
+        			{
+        				"internalType": "bool",
+        				"name": "deliveryAvailable",
+        				"type": "bool"
+        			},
+        			{
+        				"internalType": "bool",
+        				"name": "isActive",
+        				"type": "bool"
+        			}
+        		],
+        		"stateMutability": "view",
+        		"type": "function"
+        	},
+        	{
+        		"inputs": [
+        			{
+        				"internalType": "uint256",
+        				"name": "",
+        				"type": "uint256"
+        			}
+        		],
+        		"name": "pharmacyNames",
+        		"outputs": [
+        			{
+        				"internalType": "string",
+        				"name": "",
+        				"type": "string"
+        			}
+        		],
+        		"stateMutability": "view",
+        		"type": "function"
+        	}
+        ]; // Your contract ABI here
+
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    userWallet = provider.getSigner();
+                    checkUserRegistration();
+                } catch (error) {
+                    console.error('Failed to connect wallet:', error);
+                }
+            } else {
+                alert('MetaMask not detected');
+            }
+        }
+
+        async function checkUserRegistration() {
+            const contract = new ethers.Contract(contractAddress, contractABI, userWallet);
+            const isRegistered = await contract.isUserRegistered(await userWallet.getAddress());
+            if (isRegistered) {
+                displayUserProfile();
+            } else {
+                document.getElementById('signupForm').style.display = 'block';
+            }
+        }
+
+        async function displayUserProfile() {
+            const contract = new ethers.Contract(contractAddress, contractABI, userWallet);
+            const userAddress = await userWallet.getAddress();
+            const userData = await contract.getUserData(userAddress);
+            
+            const profileContent = `
+                <div class="profile-card">
+                    <div class="profile-name">${userData.name}</div>
+                    <div class="profile-details">
+                        Email: ${userData.email}<br>
+                        Phone: ${userData.phone}<br>
+                        Wallet Address: ${userAddress}
+                    </div>
+                </div>
+            `;
+            document.getElementById('profileContent').innerHTML = profileContent;
+        }
+
+        document.getElementById('userSignupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            const contract = new ethers.Contract(contractAddress, contractABI, userWallet);
+            try {
+                await contract.registerUser(name, email, phone);
+                alert('User registered successfully!');
+                displayUserProfile();
+            } catch (error) {
+                console.error('Error registering user:', error);
+                alert('Failed to register user');
+            }
+        });
+
+        // Connect wallet on page load
+        document.addEventListener('DOMContentLoaded', connectWallet);
+    </script>
+</body>
+</html>

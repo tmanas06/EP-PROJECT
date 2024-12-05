@@ -1,26 +1,27 @@
 package com.manas.service;
+
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.protocol.core.methods.response.EthAccounts;
-
-import java.io.IOException;
 
 @Service
 public class WalletService {
 
-    private Web3j web3;
+    private final Web3j web3;
 
-    public void connectWallet(String providerUrl) {
-        this.web3 = Web3j.build(new HttpService(providerUrl));
+    // Constructor-based Dependency Injection (Recommended)
+    public WalletService() {
+        // Initialize Web3j with a provider URL (Replace with a valid provider)
+        this.web3 = Web3j.build(new HttpService("https://mainnet.infura.io/v3/646091530d70408b972c4e59d52cf046"));
     }
 
     public String getWalletAddress() {
         try {
-            EthAccounts accounts = web3.ethAccounts().send();
-            return accounts.getAccounts().getFirst();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get wallet address", e);
+            // Example: Get the first wallet address
+            return web3.ethAccounts().send().getAccounts().get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error retrieving wallet address";
         }
     }
 }

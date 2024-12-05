@@ -1,0 +1,188 @@
+<%@ page import="java.sql.*" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Prices</title>
+    <style>
+        @font-face {
+            font-family: 'Nobility';
+            src: url('../fonts/NobilityCasual-pZdR.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'sp';
+            src: url('../fonts/SpButchLiteBold-8O88B.otf') format('truetype');
+        }
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --text-color: #333;
+            --background-color: #f4f7f9;
+            --content-background: rgba(255, 255, 255, 0.8);
+            --blur-effect: blur(10px);
+            --card-gradient: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+            --navbar-gradient: linear-gradient(90deg, #3498db, #2ecc71);
+            --button-gradient: linear-gradient(135deg, #6dd5ed, #2193b0);
+        }
+        .dark-mode {
+            --primary-color: #2980b9;
+            --secondary-color: #27ae60;
+            --text-color: #e0e0e0;
+            --background-color: #1a1a1a;
+            --content-background: rgba(44, 44, 44, 0.8);
+            --blur-effect: blur(15px);
+            --card-gradient: linear-gradient(135deg, #263238, #37474f);
+            --navbar-gradient: linear-gradient(90deg, #2980b9, #27ae60);
+            --button-gradient: linear-gradient(135deg, #3a6186, #89253e);
+        }
+        body {
+            font-family: 'Comfortaa', 'Nanum Gothic', cursive, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        header {
+            background: var(--navbar-gradient);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--secondary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        nav {
+            background: var(--navbar-gradient);
+            padding: 0.7rem;
+            border-radius: 10px;
+            margin: 0.5rem auto;
+            max-width: 90%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            font-family: 'sp', sans-serif;
+            text-align: center;
+            background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3rem;
+            margin: 2rem 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 80%;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+        li {
+            background: var(--content-background);
+            backdrop-filter: var(--blur-effect);
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1.1em;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: all 0.3s ease-in-out;
+        }
+        li:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        }
+        .pharmacy-name {
+            font-weight: bold;
+            font-size: 1.4em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        .details {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            ul {
+                width: 90%;
+            }
+            li {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">HealthMate</div>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="symptomChecker">Symptom Checker</a></li>
+            <li><a href="nearbyFacilities">Nearby Healthcare Facilities</a></li>
+            <li><a href="medicationPrices">Medication Price Comparison</a></li>
+            <li><a href="hospitalInsights">Hospital Insights</a></li>
+            <li><button id="connectWalletBtn">Connect Wallet</button></li>
+        </ul>
+        <div id="walletAddress"></div>
+    </nav>
+
+    <h1>Pharmacy Prices</h1>
+
+    <ul>
+        <%
+            // Your existing Java code here
+        %>
+    </ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            
+            darkModeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+            });
+
+            if (localStorage.getItem('darkMode') === 'true') {
+                body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</body>
+</html>
