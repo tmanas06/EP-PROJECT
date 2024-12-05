@@ -1,236 +1,334 @@
-<%@ page import="java.sql.*, java.util.*" %>
+<%@ page import="java.sql.*, java.util.*, org.springframework.ui.Model" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Symptom Checker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <style>
-        /* General reset */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* Global Styles */
+		@font-face {
+				    font-family: 'Nobility'; /* The name you will use in your CSS */
+				    src: url('../fonts/NobilityCasual-pZdR.ttf') format('truetype'), /* WOFF2 format */
+				}
+				@font-face {
+						    font-family: 'sp'; /* The name you will use in your CSS */
+						    src: url('../fonts/SpButchLiteBold-8O88B.otf') format('truetype'), /* WOFF2 format */
+						}
+						:root {
+						    --primary-color: #3498db;
+						    --secondary-color: #2ecc71;
+						    --text-color: #333;
+						    --background-color: #f4f7f9;
+						    --content-background: rgba(255, 255, 255, 0.8); /* Semi-transparent white for glassmorphism */
+						    --blur-effect: blur(10px);
+						    --card-gradient: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+						    --navbar-gradient: linear-gradient(90deg, #3498db, #2ecc71);
+						    --button-gradient: linear-gradient(135deg, #6dd5ed, #2193b0);
+						}
 
+						.dark-mode {
+						    --primary-color: #2980b9;
+						    --secondary-color: #27ae60;
+						    --text-color: #e0e0e0;
+						    --background-color: #1a1a1a;
+						    --content-background: rgba(44, 44, 44, 0.8); /* Dark glassmorphism effect */
+						    --blur-effect: blur(15px);
+						    --card-gradient: linear-gradient(135deg, #263238, #37474f);
+						    --navbar-gradient: linear-gradient(90deg, #2980b9, #27ae60);
+						    --button-gradient: linear-gradient(135deg, #3a6186, #89253e);
+						}
         body {
-            font-family: Arial, sans-serif;
-            background-image: url('images/home.jpeg'); /* Background image for the body */
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
+			font-family: 'Comfortaa', 'Nanum Gothic', cursive, sans-serif;
+				    background-color: var(--background-color);
+				    color: var(--text-color);
+				    margin: 0;
+				    padding: 0;
+				    display: flex;
+				    flex-direction: column;
+				    min-height: 100vh;
+				    transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Background Blur Effect */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Darkened background for better readability */
-            filter: blur(6px);
-            z-index: -1;
-        }
-
-        /* Title Styling */
         h1 {
-            font-size: 2.2rem;
-            color: #007bff;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for the title */
-            padding: 15px 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+			font-family:'sp', sans-serif;
+					    color: var(--primary-color);
+					    font-size: 3rem;
+					    margin-bottom: 1rem;
+					    text-align: center;
+						background: rgb(131,58,180);
+						background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+					    -webkit-background-clip: text;
+					    -webkit-text-fill-color: transparent;
         }
 
+        /* Form container */
         form {
+            background: rgba(255, 255, 255, 0.8); /* Slight transparency for glassmorphism */
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 50px auto;
+            padding: 40px;
+            max-width: 600px;
             width: 100%;
-            max-width: 500px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        form:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
         }
 
         label {
-            font-size: 1.1rem;
-            color: #333;
+            font-size: 1.2rem;
             margin-bottom: 10px;
-            display: block;
+            font-weight: 500;
+            color: #555;
         }
 
+        /* Textarea styling */
         textarea {
             width: 100%;
-            padding: 10px;
+            height: 120px;
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            background: #f5f5f5;
+            color: #333;
             font-size: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            resize: vertical;
-            margin-bottom: 15px;
+            transition: all 0.3s ease-in-out;
         }
 
-        input[type="submit"] {
-            background-color: #007bff;
+        textarea:focus {
+            border-color: #4A90E2;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.2);
+        }
+
+        /* Button Styling */
+        button {
+            background: #4A90E2;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        /* Results Section */
-        .results {
-            margin-top: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            text-align: left;
-        }
-
-        .result-item {
+            padding: 15px 25px;
+            border-radius: 10px;
             font-size: 1.1rem;
-            color: #333;
-            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
         }
 
-        .no-results {
-            color: #e74c3c;
+        button:hover {
+            background: #357ABD;
+            transform: scale(1.05);
+        }
+
+        /* Response Message */
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(243, 250, 255, 0.9); /* Soft light background */
+            border-left: 5px solid #4A90E2;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            text-align: left;
+            white-space: pre-line;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .error {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(248, 215, 218, 0.9);
+            border-left: 5px solid #dc3545;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            color: #dc3545;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        /* Bold text class */
+        .bold {
             font-weight: bold;
         }
+		header {
+				    background: var(--navbar-gradient);
+				    color: white;
+				    padding: 1rem;
+				    display: flex;
+				    justify-content: center;
+				    align-items: center;
+				    position: relative;
+				    border-bottom: 2px solid var(--secondary-color);
+				    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+				}
+				.logo {
+						    font-family: 'Cinzel', serif;
+						    font-size: 2.5rem;
+						    font-weight: bold;
+						}	
+			     #darkModeToggle {
+								    background: var(--button-gradient);
+								    border: none;
+								    color: white;
+								    padding: 0.5rem 1.5rem;
+								    border-radius: 25px;
+								    cursor: pointer;
+								    position: absolute;
+								    right: 20px;
+								    transition: background 0.3s, transform 0.2s;
+								}
+								#darkModeToggle:hover {
+								    transform: scale(1.1);
+								    background: linear-gradient(135deg, #4caf50, #2c3e50);
+								}	
+								nav {
+									    background: var(--navbar-gradient);
+									    padding: 0.7rem;
+									    border-radius: 10px;
+									    margin: 0.5rem auto;
+									    max-width: 90%;
+									    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+									}
 
-        .loading {
-            color: #f39c12;
-            font-style: italic;
-        }
+									nav ul {
+									    list-style: none;
+									    padding: 0;
+									    margin: 0;
+									    display: flex;
+									    justify-content: center;
+									    gap: 1rem;
+									}
 
-        /* Mobile responsiveness */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.8rem;
-                margin-bottom: 15px;
-            }
+									nav ul li {
+									    margin: 0;
+									}
 
+									nav ul li a {
+									    color: white;
+									    text-decoration: none;
+									    font-weight: bold;
+									    padding: 0.5rem 1rem;
+									    border-radius: 20px;
+									    transition: background-color 0.3s ease, transform 0.3s;
+									}
+
+									nav ul li a:hover {
+									    background-color: rgba(255, 255, 255, 0.2);
+									    transform: translateY(-3px);
+									}			
+        /* Responsive Design */
+        @media (max-width: 768px) {
             form {
+                padding: 25px;
+                margin: 20px;
                 width: 90%;
             }
 
-            .results {
-                width: 90%;
-            }
-
-            textarea {
-                font-size: 1rem;
-                padding: 8px;
-            }
-
-            input[type="submit"] {
-                font-size: 0.9rem;
+            h1 {
+                font-size: 2rem;
             }
         }
+		
     </style>
 </head>
-
 <body>
+	<header>
+	       <div class="logo">HealthMate</div>
+	       <button id="darkModeToggle">Toggle Dark Mode</button>
+	   </header>
+	   <nav>
+	         <ul>
+	             <li><a href="symptomChecker">Symptom Checker</a></li>
+	             <li><a href="nearbyFacilities">Nearby Healthcare Facilities</a></li>
+	             <li><a href="medicationPrices">Medication Price Comparison</a></li>
+	             <li><a href="hospitalInsights">Hospital Insights</a></li>
+	                 <li><button id="connectWalletBtn">Connect Wallet</button></li>
+
+	         </ul>
+	              <div id="walletAddress"></div>
+	         
+	     </nav>
     <h1>Symptom Checker</h1>
+
+    <!-- Form for sending symptoms -->
     <form action="/symptomChecker" method="post">
-        <label for="symptoms">Enter your symptoms (comma-separated):</label><br/>
-        <textarea id="symptoms" name="symptoms" rows="4" cols="50"></textarea><br/>
-        <input type="submit" value="Check Symptoms">
+        <label for="symptoms">Enter your symptoms:</label><br/>
+        <textarea id="symptoms" name="symptoms" placeholder="e.g., fever, cough, sore throat"></textarea><br/>
+        <button type="submit">Check Symptoms</button>
     </form>
 
-    <%
-        // Process form submission
-        String symptoms = request.getParameter("symptoms");
+    <!-- Display Response -->
+    <c:if test="${not empty responseMessage}">
+        <div class="response">
+            <h3>Possible Causes and Recommendations:</h3>
+            ${responseMessage}
+        </div>
+    </c:if>
 
-        if (symptoms != null && !symptoms.isEmpty()) {
-            // Database connection details
-            String url = "jdbc:mysql://localhost:3306/medical";
-            String user = "root";
-            String password = "manas";
-            Connection conn = null;
-            PreparedStatement pstmt = null;
-            ResultSet rs = null;
+	<script>
+	   document.addEventListener('DOMContentLoaded', function() {
+	       const connectWalletBtn = document.getElementById('connectWalletBtn');
+	       const walletAddressDiv = document.getElementById('walletAddress'); // Use the existing div
 
-            try {
-                // Load MySQL JDBC Driver
-                Class.forName("com.mysql.cj.jdbc.Driver");
+	       connectWalletBtn.addEventListener('click', async () => {
+	           if (typeof window.ethereum !== 'undefined') {
+	               try {
+	                   // Request account access
+	                   await window.ethereum.request({ method: 'eth_requestAccounts' });
+	                   
+	                   // Get the selected address
+	                   const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+	                   const address = accounts[0];
+	                   console.log("Retrieved address:", address);
 
-                // Establish a connection to the database
-                conn = DriverManager.getConnection(url, user, password);
+	                   // Send the address to your server
+	                   const response = await fetch('/connect-wallet', {
+	                       method: 'POST',
+	                       headers: {
+	                           'Content-Type': 'application/x-www-form-urlencoded',
+	                       },
+	                       body: `providerUrl=${window.ethereum.networkVersion}`
+	                   });
 
-                // Split the input symptoms into an array and remove extra spaces
-                String[] symptomList = symptoms.split(",");
-                
-                // Build SQL query
-                StringBuilder query = new StringBuilder("SELECT DISTINCT mc.condition_name FROM medical_conditions mc ");
-                query.append("JOIN condition_symptoms cs ON mc.id = cs.condition_id ");
-                query.append("JOIN symptoms s ON cs.symptom_id = s.id WHERE s.symptom_name IN (");
+	                   if (response.ok) {
+	                       walletAddressDiv.innerHTML = `Connected: <span style="word-break: break-all;">${address}</span>`;
+	                       connectWalletBtn.textContent = 'Wallet Connected';
+	                       connectWalletBtn.disabled = true;
+	                   } else {
+	                       console.error('Failed to connect wallet on server');
+	                       walletAddressDiv.textContent = 'Failed to connect wallet on server';
+	                   }
+	               } catch (error) {
+	                   console.error('Failed to connect wallet', error);
+	                   walletAddressDiv.textContent = 'Failed to connect wallet';
+	               }
+	           } else {
+	               console.error('MetaMask not detected');
+	               walletAddressDiv.textContent = 'MetaMask not detected';
+	           }
+	       });
+	   });
 
-                // Add placeholders for the symptoms
-                for (int i = 0; i < symptomList.length; i++) {
-                    query.append("?");
+	       const darkModeToggle = document.getElementById('darkModeToggle');
+	       const body = document.body;
 
-                    if (i < symptomList.length - 1) {
-                        query.append(",");
-                    }
-                }
-                query.append(")");
+	       darkModeToggle.addEventListener('click', () => {
+	           body.classList.toggle('dark-mode');
+	           localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+	       });
 
-                // Prepare statement and set parameters
-                pstmt = conn.prepareStatement(query.toString());
-                for (int i = 0; i < symptomList.length; i++) {
-                    pstmt.setString(i + 1, symptomList[i].trim());
-                }
-
-                // Execute query
-                rs = pstmt.executeQuery();
-
-                // Display results
-                if (rs.next()) {
-                    out.println("<div class='results'>");
-                    out.println("<h3>Possible Medical Conditions:</h3>");
-                    do {
-                        out.println("<div class='result-item'>" + rs.getString("condition_name") + "</div>");
-                    } while (rs.next());
-                    out.println("</div>");
-                } else {
-                    out.println("<div class='results no-results'>No matching conditions found for the provided symptoms.</div>");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                out.println("<div class='results'>An error occurred while checking the symptoms.</div>");
-            } finally {
-                try {
-                    if (rs != null) rs.close();
-                    if (pstmt != null) pstmt.close();
-                    if (conn != null) conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    %>
+	       // Check for saved dark mode preference
+	       if (localStorage.getItem('darkMode') === 'true') {
+	           body.classList.add('dark-mode');
+	       }
+	   </script>
 </body>
 </html>

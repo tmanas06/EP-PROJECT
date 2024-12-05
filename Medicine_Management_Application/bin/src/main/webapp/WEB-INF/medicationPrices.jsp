@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Insights</title>
+    <title>Hospital Insights - Pharmacy Prices</title>
     <style>
         /* Basic Styling */
         body {
             font-family: Arial, sans-serif;
-            background-image: url('images/home.jpeg'); /* Replace with your image path */
+            background-image: url('images/home.jpeg'); /* Optional: Set background image */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -59,16 +59,16 @@
             transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* Hospital Name Styling */
-        li span.hospital-name {
+        /* Pharmacy Name Styling */
+        li span.pharmacy-name {
             font-weight: bold;
             font-size: 1.4em;
             color: #007bff;
             margin-bottom: 8px;
         }
 
-        /* Department Stats Styling */
-        li .stats {
+        /* Price and Delivery Option Styling */
+        li .details {
             color: #555;
             line-height: 1.6;
         }
@@ -99,14 +99,14 @@
 </head>
 <body>
 
-    <h1>Hospital Insights</h1>
+    <h1>Pharmacy Prices</h1>
 
     <ul>
         <%
             // Database connection parameters
             String url = "jdbc:mysql://localhost:3306/medical";
             String user = "root";
-            String password = "Gayathri@1";
+            String password = "manas";
 
             Connection conn = null;
             Statement stmt = null;
@@ -122,35 +122,32 @@
                 // Create a statement to execute SQL
                 stmt = conn.createStatement();
 
-                // Query to retrieve data from hospital_insights table
-                String sql = "SELECT hospital_name, success_rate, failure_rate FROM hospital_insights";
+                // Query to retrieve data from pharmacy_prices table
+                String sql = "SELECT pharmacy_name, price, delivery_option FROM pharmacy_prices";
                 rs = stmt.executeQuery(sql);
 
                 // Iterate through the result set and display each row
                 while (rs.next()) {
-                    String hospitalName = rs.getString("hospital_name");
-                    String successRate = rs.getString("success_rate");
-                    String failureRate = rs.getString("failure_rate");
+                    String pharmacyName = rs.getString("pharmacy_name");
+                    String price = rs.getString("price");
+                    boolean deliveryOption = rs.getBoolean("delivery_option");
         %>
                     <li>
-                        <span class="hospital-name"><%= hospitalName %></span>
-                        <div class="stats">
-                            Success Rate: <%= successRate %>%<br/>
-                            Failure Rate: <%= failureRate %>%
+                        <span class="pharmacy-name"><%= pharmacyName %></span>
+                        <div class="details">
+                            Price: $<%= price %><br/>
+                            Delivery Available: <%= deliveryOption ? "Yes" : "No" %>
                         </div>
                     </li>
         <%
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                out.println("<p>Error fetching hospital data. Please try again later.</p>");
             } finally {
                 // Close the resources
-                try {
-                    if (rs != null) rs.close();
-                    if (stmt != null) stmt.close();
-                    if (conn != null) conn.close();
-                } catch (SQLException ignore) {}
+                if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
+                if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+                if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
             }
         %>
     </ul>

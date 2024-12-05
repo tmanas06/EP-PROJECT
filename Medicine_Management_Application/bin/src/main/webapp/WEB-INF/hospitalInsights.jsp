@@ -106,7 +106,7 @@
             // Database connection parameters
             String url = "jdbc:mysql://localhost:3306/medical";
             String user = "root";
-            String password = "Gayathri@1";
+            String password = "manas";
 
             Connection conn = null;
             Statement stmt = null;
