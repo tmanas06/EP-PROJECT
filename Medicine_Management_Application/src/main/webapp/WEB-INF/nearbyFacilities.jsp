@@ -30,10 +30,22 @@
         button:hover {
             background-color: #45a049;
         }
+        .filters {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>Find Nearby Hospitals</h1>
+
+    <!-- Filter Options -->
+    <div class="filters">
+        <label><input type="checkbox" id="emergencyService" /> Emergency Services</label><br>
+        <label><input type="checkbox" id="specialtyCardiology" /> Cardiology</label><br>
+        <label><input type="checkbox" id="specialtyNeurology" /> Neurology</label><br>
+        <label><input type="checkbox" id="specialtyOrthopedics" /> Orthopedics</label><br>
+    </div>
+
     <button id="findHospitals">Find Nearby Hospitals</button>
     <div id="map"></div>
 
@@ -46,7 +58,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Get the user's current location
+        // Get the user's current location and fetch hospitals
         document.getElementById('findHospitals').addEventListener('click', () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (position) => {
@@ -57,7 +69,7 @@
                     map.setView([lat, lon], 13);
                     L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
 
-                    // Fetch nearby hospitals using your Node.js server
+                    // Fetch nearby hospitals from the backend
                     try {
                         const response = await $.get('http://localhost:3000/nearby-hospitals', { lat, lon });
                         const hospitals = response.elements || [];
@@ -67,11 +79,38 @@
                             return;
                         }
 
-                        // Add hospital markers to the map
-                        hospitals.forEach(hospital => {
+                        // Filter hospitals based on user input
+                        const filteredHospitals = hospitals.filter(hospital => {
+                            let matchesFilters = true;
+
+                            // Check for Emergency Service filter
+                            if (document.getElementById('emergencyService').checked && 
+                                !hospital.tags['health_facility:type']?.includes('Emergency Service')) {
+                                matchesFilters = false;
+                            }
+
+                            // Check for specialty filters
+                            if (document.getElementById('specialtyCardiology').checked && 
+                                !hospital.tags['healthcare:speciality']?.includes('Cardiology')) {
+                                matchesFilters = false;
+                            }
+                            if (document.getElementById('specialtyNeurology').checked && 
+                                !hospital.tags['healthcare:speciality']?.includes('Neurology')) {
+                                matchesFilters = false;
+                            }
+                            if (document.getElementById('specialtyOrthopedics').checked && 
+                                !hospital.tags['healthcare:speciality']?.includes('Orthopedics')) {
+                                matchesFilters = false;
+                            }
+
+                            return matchesFilters;
+                        });
+
+                        // Add filtered hospital markers to the map
+                        filteredHospitals.forEach(hospital => {
                             const hospitalLat = hospital.lat;
                             const hospitalLon = hospital.lon;
-                            const name = hospital.tags && hospital.tags.name ? hospital.tags.name : "Unknown Hospital";
+                            const name = hospital.tags.name || "Unknown Hospital";
 
                             L.marker([hospitalLat, hospitalLon])
                                 .addTo(map)
