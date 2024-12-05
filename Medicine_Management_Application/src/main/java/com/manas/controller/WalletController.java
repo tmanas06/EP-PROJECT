@@ -11,7 +11,11 @@ public class WalletController {
     @Autowired
     private WalletService walletService;
 
-    @GetMapping("/profile")
+//    @GetMapping("/profile")
+//    public String profilePage() {
+//        return "profile";
+//    }
+    @GetMapping("/wallet-profile")
     public String profilePage() {
         return "profile";
     }
